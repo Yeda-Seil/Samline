@@ -24,9 +24,35 @@
         input, button {
             text-align: center;
         }
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            z-index: 1000;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .popup.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+    <div id="popup" class="popup">
+        חלק מהדגמים נמצאים תחת אחריותם של סמליין, ניופאן, מחסני חשמל או MASLAMANI - PS.<br>
+        באמצעות הכלי הבא תוכלו להזין את קוד הדגם ולדעת האם מדובר במוצר תחת אחריות סמליין/ניופאן/מחסני חשמל/MASLAMANI - PS.
+    </div>
     <div class="container bg-white p-6 rounded-lg shadow-lg">
         <h1 class="text-2xl font-bold text-gray-800 mb-4">בדיקת אחריות</h1>
         <div class="mb-4">
@@ -48,6 +74,18 @@
     </div>
 
     <script>
+        // Show popup on page load and hide after 2 seconds
+        window.onload = function() {
+            const popup = document.getElementById('popup');
+            popup.classList.add('show');
+            setTimeout(() => {
+                popup.classList.remove('show');
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 500); // Match transition duration
+            }, 2000);
+        };
+
         const samlineProducts = [
             { code: "HW-B450F/BAS", model: "SBB450F-J" },
             { code: "MG32DG4524ATE1", model: "MW4000D" },
@@ -157,7 +195,7 @@
             { code: "QE55QN80FAUXIL", model: "QN80FE" },
             { code: "QE55QN85FAUXIL", model: "QN85FD" },
             { code: "QE55QN90FATXIL", model: "QN90FC" },
-            { code: "QE65LS03FAUXIL", model: "QFLS03M" },
+            { code: "QE65LS03DAUXIL", model: "QDLS03M" },
             { code: "QE65LS03FWUXIL", model: "QFLS03W" },
             { code: "QE65Q60DAUXIL", model: "Q60DG" },
             { code: "QE65Q7FAAUXIL", model: "Q70FL" },
@@ -189,6 +227,23 @@
             { code: "QE85QN90FATXIL", model: "QN90FC" }
         ];
 
+        const machsaneiProducts = [
+            { code: "UE43F6000FUXSQ", model: "F6000FE" },
+            { code: "UE58U8000FUXSQ", model: "U8000FB" },
+            { code: "UE70U8000FUXSQ", model: "U8000FB" },
+            { code: "QE65LS03FAUXSQ", model: "QFLS03M" },
+            { code: "QE65Q7F5AUXSQ", model: "Q70FL" }
+        ];
+
+        const maslamaniProducts = [
+            { code: "WD11DG5B15BBPS", model: "WD9000C" },
+            { code: "WW11CGC04DABPS", model: "WW5000T" },
+            { code: "WW90DG5U35ABPS", model: "WW6000T" },
+            { code: "WW90DG6U95LBPS", model: "WW6000T" },
+            { code: "RT47CG6446S9PS", model: "RT6300C" },
+            { code: "RT58K7004SL/PS", model: "RT7000K" }
+        ];
+
         function normalizeCode(code) {
             return code.replace(/\//g, '').toUpperCase();
         }
@@ -214,14 +269,30 @@
                 return normalizedProductCode.startsWith(normalizedInput);
             });
 
+            const machsaneiProduct = machsaneiProducts.find(product => {
+                const normalizedProductCode = normalizeCode(product.code);
+                return normalizedProductCode.startsWith(normalizedInput);
+            });
+
+            const maslamaniProduct = maslamaniProducts.find(product => {
+                const normalizedProductCode = normalizeCode(product.code);
+                return normalizedProductCode.startsWith(normalizedInput);
+            });
+
             if (samlineProduct) {
                 resultElement.textContent = `הדגם ${modelCode} (${samlineProduct.model}) נמצא תחת אחריות סמליין.`;
                 resultElement.className = "mt-4 text-lg font-semibold text-green-600";
             } else if (newpanProduct) {
                 resultElement.textContent = `הדגם ${modelCode} (${newpanProduct.model}) נמצא תחת אחריות ניופאן.`;
                 resultElement.className = "mt-4 text-lg font-semibold text-blue-600";
+            } else if (machsaneiProduct) {
+                resultElement.textContent = `הדגם ${modelCode} (${machsaneiProduct.model}) נמצא תחת אחריות מחסני חשמל.`;
+                resultElement.className = "mt-4 text-lg font-semibold text-purple-600";
+            } else if (maslamaniProduct) {
+                resultElement.textContent = `הדגם ${modelCode} (${maslamaniProduct.model}) נמצא תחת אחריות MASLAMANI - PS.`;
+                resultElement.className = "mt-4 text-lg font-semibold text-orange-600";
             } else {
-                resultElement.textContent = `הדגם ${modelCode} אינו נמצא תחת אחריות סמליין או ניופאן.`;
+                resultElement.textContent = `קוד הדגם לא תחת אחריות סמליין וניתן להמשיך בתפעול`;
                 resultElement.className = "mt-4 text-lg font-semibold text-red-500";
             }
         }
